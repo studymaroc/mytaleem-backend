@@ -98,12 +98,24 @@ function invalidateGamificationConfig() {
   cachedConfig = null;
 }
 
+/**
+ * بيحوّل وثيقة Mongoose لكائن عادي.
+ *
+ * مهم: نشر وثيقة Mongoose بـ {...doc} بينسخ خصائصها الداخلية مش الحقول،
+ * فالعنوان والوصف بيوصلوا للتطبيق فاضيين. لازم toObject() الأول.
+ */
+function toPlain(doc) {
+  if (!doc) return doc;
+  return typeof doc.toObject === "function" ? doc.toObject() : doc;
+}
+
 /** الشارات المفعّلة مرتبة — بترجع الافتراضي لو الإعدادات لسه ماتحمّلتش. */
 function activeBadges() {
   if (!cachedConfig || !Array.isArray(cachedConfig.badges) || cachedConfig.badges.length === 0) {
     return defaultBadgeDefinitions;
   }
   return cachedConfig.badges
+    .map(toPlain)
     .filter((badge) => badge.isActive !== false)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 }
@@ -114,6 +126,7 @@ function activeMissions() {
     return defaultMissionDefinitions;
   }
   return cachedConfig.missions
+    .map(toPlain)
     .filter((mission) => mission.isActive !== false)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 }
