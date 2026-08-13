@@ -16,7 +16,11 @@ const AIProvider = require("../models/aiProvider");
 const auth = require("../middlewares/auth");
 const adminAuth = require("../middlewares/adminAuth");
 
-const AI_REQUEST_TIMEOUT_MS = 45000;
+// المهلات بتتقرا من متغيرات البيئة عشان نقدر نظبطها من غير نشر جديد.
+const AI_REQUEST_TIMEOUT_MS =
+  Number(process.env.AI_REQUEST_TIMEOUT_MS) || 110000;
+const AI_PROVIDER_TIMEOUT_MS =
+  Number(process.env.AI_PROVIDER_TIMEOUT_MS) || 60000;
 const MAX_DIRECT_CONTEXT_CHARS = Number(
   process.env.AI_DIRECT_CONTEXT_CHAR_LIMIT || 4200
 );
@@ -372,6 +376,7 @@ aiRouter.post("/api/ai/chat", auth, async (req, res) => {
     const responseText = await withRouteTimeout(
       generateChatResponse(messages, systemPrompt, null, {
         totalTimeoutMs: AI_REQUEST_TIMEOUT_MS,
+        providerTimeoutMs: AI_PROVIDER_TIMEOUT_MS,
       }),
       AI_REQUEST_TIMEOUT_MS + 1000,
       "AI chat request timed out."
@@ -416,7 +421,10 @@ No other text. In Arabic language only.`;
         [{ role: "user", content: "Generate the exam." }],
         systemPrompt,
         { type: "json_object" },
-        { totalTimeoutMs: AI_REQUEST_TIMEOUT_MS }
+        {
+          totalTimeoutMs: AI_REQUEST_TIMEOUT_MS,
+          providerTimeoutMs: AI_PROVIDER_TIMEOUT_MS,
+        }
       ),
       AI_REQUEST_TIMEOUT_MS + 1000,
       "AI exam generation request timed out."
@@ -652,7 +660,10 @@ aiRouter.post("/api/ai/generate-quiz", auth, async (req, res) => {
         messages,
         systemPrompt,
         { type: "json_object" },
-        { totalTimeoutMs: AI_REQUEST_TIMEOUT_MS }
+        {
+          totalTimeoutMs: AI_REQUEST_TIMEOUT_MS,
+          providerTimeoutMs: AI_PROVIDER_TIMEOUT_MS,
+        }
       ),
       AI_REQUEST_TIMEOUT_MS + 1000,
       "AI quiz generation request timed out."

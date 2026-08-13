@@ -8,8 +8,10 @@ const {
   normalizeAiProviderKey,
 } = require("./aiProviderCatalog");
 
-const DEFAULT_PROVIDER_TIMEOUT_MS = 15000;
-const DEFAULT_TOTAL_TIMEOUT_MS = 45000;
+const DEFAULT_PROVIDER_TIMEOUT_MS =
+  Number(process.env.AI_PROVIDER_TIMEOUT_MS) || 60000;
+const DEFAULT_TOTAL_TIMEOUT_MS =
+  Number(process.env.AI_TOTAL_TIMEOUT_MS) || 120000;
 const DEFAULT_MAX_HISTORY_MESSAGES = Number(
   process.env.AI_HISTORY_MESSAGE_LIMIT || 10
 );
