@@ -1,0 +1,7 @@
+runtime: nodejs20 # Use the latest Node.js version supported by GCP
+env: standard
+
+handlers:
+  - url: /.*
+    script: auto
+    secure: never  # This allows HTTP traffic
