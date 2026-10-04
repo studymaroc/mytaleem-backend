@@ -2,9 +2,21 @@ const express = require("express");
 const http = require("http");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const cors = require("cors"); // CORS: added
 const app = express();
 const server = http.createServer(app);
-const io = require("socket.io")(server);
+
+// CORS: allowed web origins (Firebase Hosting + GitHub Pages domains)
+const allowedOrigins = [
+  /^https:\/\/[a-z0-9-]+\.web\.app$/,
+  /^https:\/\/[a-z0-9-]+\.firebaseapp\.com$/,
+  /^https:\/\/[a-z0-9-]+\.github\.io$/,
+];
+
+const io = require("socket.io")(server, {
+  // CORS: added for Socket.IO
+  cors: { origin: allowedOrigins },
+});
 const authRouter = require("./routes/auth");
 const moduleRouter = require("./routes/module");
 const notifiRouter = require("./routes/notifi");
@@ -17,6 +29,7 @@ const commentsRouter = require("./routes/comments");
 const examsHubRouter = require("./routes/examsHub");
 const examSectionsRouter = require("./routes/examSections");
 const quizRouter = require("./routes/quiz");
+const appSettingsRouter = require("./routes/appSettings");
 const { migrateExamSections } = require("./utils/migrateExamSections");
 const { loadGamificationConfig } = require("./utils/gamification");
 const AppConfig = require("./models/appConfig");
@@ -78,6 +91,19 @@ mongoose
   })
   .catch((e) => console.error("MongoDB connection error:", e));
 
+// CORS: must stay BEFORE express.json() and all routers
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      // Mobile apps send no Origin header, so they are allowed through
+      if (!origin || allowedOrigins.some((r) => r.test(origin))) {
+        return cb(null, true);
+      }
+      return cb(null, false);
+    },
+  })
+);
+
 app.use(
   express.json({
     limit: process.env.REQUEST_JSON_LIMIT || "10mb",
@@ -95,6 +121,7 @@ app.use(commentsRouter);
 app.use(examsHubRouter);
 app.use(examSectionsRouter);
 app.use(quizRouter);
+app.use(appSettingsRouter);
 
 app.get("/", (req, res) => {
   console.log("Request at /");
