@@ -1,7 +1,7 @@
 const express = require("express");
 const appSettingsRouter = express.Router();
 const AppConfig = require("../models/appConfig");
-const admin = require('../middlewares/adminAuth');
+const adminAuth = require("../middlewares/adminAuth");
 
 // GET /api/app-settings/config (أو الإعدادات العامة للتطبيق)
 appSettingsRouter.get("/api/app-settings", async (req, res) => {
