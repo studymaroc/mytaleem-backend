@@ -30,6 +30,7 @@ const examsHubRouter = require("./routes/examsHub");
 const examSectionsRouter = require("./routes/examSections");
 const quizRouter = require("./routes/quiz");
 const appSettingsRouter = require("./routes/appSettings");
+const pdfProxyRouter = require("./routes/pdfProxy");
 const { migrateExamSections } = require("./utils/migrateExamSections");
 const { loadGamificationConfig } = require("./utils/gamification");
 const AppConfig = require("./models/appConfig");
@@ -109,6 +110,7 @@ app.use(
     limit: process.env.REQUEST_JSON_LIMIT || "10mb",
   })
 );
+app.use(pdfProxyRouter);
 app.use(authRouter);
 app.use(moduleRouter);
 app.use(notifiRouter);
